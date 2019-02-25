@@ -7,9 +7,9 @@ module.exports = {
   manifest_version: 2,
   icons: { '16': 'icons/16.png', '128': 'icons/128.png' },
   permissions: [
-    '<all_urls>',
-    '*://*/*',
-    'activeTab',
+    // '<all_urls>',
+    'https://databank.yushanfang.com/',
+    // 'activeTab',
     'tabs',
     'cookies',
     // 'background',
