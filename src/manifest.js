@@ -12,13 +12,13 @@ module.exports = {
     'activeTab',
     'tabs',
     'cookies',
-    'background',
-    'contextMenus',
+    // 'background',
+    // 'contextMenus',
     'unlimitedStorage',
-    'storage',
-    'notifications',
-    'identity',
-    'identity.email'
+    'storage'
+    // 'notifications',
+    // 'identity',
+    // 'identity.email'
   ],
   browser_action: {
     default_title: 'title',
