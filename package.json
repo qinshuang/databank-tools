@@ -6,14 +6,22 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "axios": "^0.17.0",
-    "element-ui": "^2.0.1",
+    "axios": "^0.18.0",
+    "babel-polyfill": "^6.26.0",
+    "element-ui": "^2.4.11",
+    "file-saver": "^2.0.1",
     "lodash": "^4.17.4",
-    "vue": "^2.5.2",
+    "mavon-editor": "^2.6.17",
+    "vue": "^2.5.21",
+    "vue-cropperjs": "^3.0.0",
     "vue-meta": "^1.2.0",
     "vue-pouch": "^0.0.22",
+    "vue-quill-editor": "^3.0.6",
     "vue-router": "^3.0.1",
-    "vuex": "^3.0.0"
+    "vue-schart": "^1.0.0",
+    "vuedraggable": "^2.17.0",
+    "vuex": "^3.0.0",
+    "xlsx": "^0.14.1"
   },
   "scripts": {
     "lint": "eslint --ext .js,.vue src",
@@ -59,11 +67,13 @@
     "url-loader": "^0.6.2",
     "vue-loader": "^13.3.0",
     "vue-style-loader": "^3.0.3",
-    "vue-template-compiler": "^2.5.2",
+    "vue-template-compiler": "^2.5.21",
     "wcer": "^1.0.3",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.3",
     "webpack-merge": "^4.1.0",
-    "ws": "^3.2.0"
+    "ws": "^3.2.0",
+    "@vue/cli-plugin-babel": "^3.2.0",
+    "@vue/cli-service": "^3.2.0"
   }
 }
