@@ -11,9 +11,9 @@ module.exports = {
     popup: resolve('./popup'),
     options: resolve('./options'),
     content: resolve('./content'), 
-    devtools: resolve('./devtools'),
-    background: resolve('./backend'),
-    panel: resolve('./devtools/panel'),
+    // devtools: resolve('./devtools'),
+    // background: resolve('./backend'),
+    // panel: resolve('./devtools/panel'),
     inject: resolve('./content/inject'),
   },
   output: {
@@ -90,12 +90,12 @@ module.exports = {
     ]
   },
   plugins: [
-    htmlPage('home', 'app', ['tab']),
-    htmlPage('popup', 'popup', ['popup']),
-    htmlPage('panel', 'panel', ['panel']),
-    htmlPage('devtools', 'devtools', ['devtools']),
-    htmlPage('options', 'options', ['options']),
-    htmlPage('background', 'background', ['background']),
+    htmlPage('home', 'app', ['manifest', 'vendor','tab']),
+    htmlPage('popup', 'popup', ['manifest', 'vendor','popup']),
+    // htmlPage('panel', 'panel', ['manifest', 'vendor','panel']),
+    // htmlPage('devtools', 'devtools', ['manifest', 'vendor','devtools']),
+    // htmlPage('options', 'options', ['manifest', 'vendor','options']),
+    // htmlPage('background', 'background', ['background']),
     new CopyWebpackPlugin([{ from: path.join(__dirname, '..', 'static') }]),
     new ChromeReloadPlugin({
       port: 9090,

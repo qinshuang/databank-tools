@@ -89,7 +89,7 @@
                 
                 <el-button type="primary" @click="Search()">开始查询</el-button>
                 <el-button type="primary" @click="Download()">下载</el-button>
-                <el-button type="primary" @click="getData()">下载</el-button>
+                <h5>执行进度</h5><el-progress :text-inside="true" :stroke-width="18" :percentage="process_percent"></el-progress>
               </div>
         </div>
     </div>
@@ -102,6 +102,9 @@ var FileSaver = require('file-saver')
         name: 'link-sales',
         data() {
             return {
+              post_error: false,
+              process_percent:0,
+              full_link_total:0,
               csrf_token:'',
               form:{},
               singleShopItemCount:{},
@@ -147,10 +150,10 @@ var FileSaver = require('file-saver')
             }
         },
         created() {
-          getCookies("https://databank.yushanfang.com","_tb_token_",(token)=>{
-            this.csrf_token=token
-          })
-                  this.$http.get("https://databank.yushanfang.com/api/paasapi?path=/api/dimension/listChildDimension&type=STATUS&id=7").then((response)=>{
+            getCookies("https://databank.tmall.com","_tb_token_",(token)=>{
+              this.csrf_token=token
+            })
+                  this.$http.get("https://databank.tmall.com/api/paasapi?path=/api/dimension/listChildDimension&type=STATUS&id=7").then((response)=>{
                     var that=this;
                     if (response.data.data){
                       response.data.data.map((value, index)=> {
@@ -172,7 +175,7 @@ var FileSaver = require('file-saver')
                         message: '接口错误'
                       });
                   });
-                  this.$http.get("https://databank.yushanfang.com/api/paasapi?path=/api/dimension/listChildDimension&type=SHOP&id=63").then((response)=>{
+                  this.$http.get("https://databank.tmall.com/api/paasapi?path=/api/dimension/listChildDimension&type=SHOP&id=63").then((response)=>{
                     var that=this;
                     response.data.data.map((value, index)=> {
                      that.shop_select_options.push({
@@ -187,7 +190,7 @@ var FileSaver = require('file-saver')
                         message: '接口错误'
                       });
                   });
-                  this.$http.get("https://databank.yushanfang.com/api/paasapi?path=/api/dimension/listChildDimension&type=BEHAVIOR&id=63").then((response)=>{
+                  this.$http.get("https://databank.tmall.com/api/paasapi?path=/api/dimension/listChildDimension&type=BEHAVIOR&id=63").then((response)=>{
                     var that=this;
                     response.data.data.map((value, index)=> {
                      that.behavior_select_options.push({
@@ -204,6 +207,13 @@ var FileSaver = require('file-saver')
                   })
         },
         methods: {
+          clear(){
+            this.post_error=false;
+            this.process_percent=0;
+            this.full_link_total=0;
+            this.singleShopItemCount={};
+            this.linkShopItemCount={};
+          },
           handleClose(tag) {
             this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
           },
@@ -247,8 +257,9 @@ var FileSaver = require('file-saver')
                         "dateValue":{"from":this.shop_behavior_data[0],"to":this.shop_behavior_data[1]}},"selectionLv2":["63#|#4"]}
           },
           async postDataBank(customModel,key,callback){
+            if(this.post_error==true)return;
             const that=this;
-              let response = await this.$http.post("https://databank.yushanfang.com/api/paasapi",{
+              let response = await this.$http.post("https://databank.tmall.com/api/paasapi",{
                 "path": "/api/v1/custom/realtime/count",
                 "contentType": "application/json",
                 "customModelStr": JSON.stringify(customModel)
@@ -268,6 +279,7 @@ var FileSaver = require('file-saver')
                     
                   }else{
                     console.log(res_data)
+                    this.post_error=true;
                     this.$notify.error({
                           title: '错误',
                           message: res_data.errMsg,
@@ -281,95 +293,167 @@ var FileSaver = require('file-saver')
               //   console.log(response)
               // })
           },
-          Search(){
-            
-            for(var i=0;i<this.dynamicTags.length;i++){
+          signleItemCallback(key,data){
+            var that=this;
+            if(data.errCode==477012012009){
               var full_link_model=this.getFullLinkModel()
+              var shop_model=this.getShopItemModel(key)
+               shop_model['op']='DIFF'
+               var customModel={"crowdName":"",
+                 "list":[full_link_model,shop_model]
+               }
+               // 477012012009
+              this.postDataBank(customModel,key,(k,d)=>{
+                if(d.errCode==0){
+                  try{
+                    that.singleShopItemCount[k[0]]=that.full_link_total-d.data
+                  }catch(err){
+                    console.log(err,that.full_link_total,d.data)
+                    that.singleShopItemCount[k[0]]=d.errMsg
+                  }
+                }else{
+                  that.singleShopItemCount[k[0]]=d.errMsg
+                }
+              })
+            }else if(data.errCode==0){
+              this.singleShopItemCount[key[0]]=data.data
+            }else{
+              this.singleShopItemCount[key[0]]=data.errMsg
+            }
+            this.process_percent=40
+          },
+          linkItemCallback(key,data){
+            var that=this;
+            if(data.errCode==477012012009){
+              var full_link_model=this.getFullLinkModel()
+              var shop_model=this.getShopItemModel(key[0])
+              var link_shop_model=this.getShopItemModel(key[1])
+               shop_model['op']='INTERSECT'
+               link_shop_model['op']='DIFF'
+               var customModel={"crowdName":"",
+                 "list":[full_link_model,shop_model,link_shop_model]
+               }
+               // 477012012009
+              this.postDataBank(customModel,key,(k,d)=>{
+                if(d.errCode==0){
+                  try{
+                    that.linkShopItemCount[k[0]+'_'+k[1]]=that.singleShopItemCount[k[0]]-d.data
+                    that.linkShopItemCount[k[1]+'_'+k[0]]=that.singleShopItemCount[k[0]]-d.data
+                  }catch(err){
+                    that.linkShopItemCount[k[0]+'_'+k[1]]=d.errMsg
+                    that.linkShopItemCount[k[1]+'_'+k[0]]=d.errMsg
+                  }
+                }else{
+                  that.linkShopItemCount[k[0]+'_'+k[1]]=d.errMsg
+                  that.linkShopItemCount[k[1]+'_'+k[0]]=d.errMsg
+                }
+                let dynamicTagsLength=that.dynamicTags.length
+                let total=dynamicTagsLength*dynamicTagsLength-dynamicTagsLength
+                that.process_percent=40+60*Object.keys(that.linkShopItemCount).length/total
+              })
+            }else if(data.errCode==0){
+              this.linkShopItemCount[key[0]+'_'+key[1]]=data.data
+              this.linkShopItemCount[key[1]+'_'+key[0]]=data.data
+            }else{
+              this.linkShopItemCount[key[0]+'_'+key[1]]=data.errMsg
+              this.linkShopItemCount[key[1]+'_'+key[0]]=data.errMsg
+            }
+            let dynamicTagsLength=this.dynamicTags.length
+            let total=dynamicTagsLength*dynamicTagsLength-dynamicTagsLength
+            this.process_percent=40+60*Object.keys(this.linkShopItemCount).length/total
+          },
+          Search(){
+            this.clear()
+            let full_link_model=this.getFullLinkModel()
+            let customModel={"crowdName":"",
+                 "list":[full_link_model]
+               }
+            this.postDataBank(customModel,'full_link_total',(key,data)=>{
+              if(data.errCode==0){
+                that.full_link_total=data.data;
+              }else{
+                that.full_link_total=data.errMsg;
+              }
+            })
+            sleep(1500)
+            this.process_percent=5
+            for(var i=0;i<this.dynamicTags.length;i++){
               var shop_id=this.dynamicTags[i];
               var that=this;
               var shop_model=this.getShopItemModel([shop_id])
                shop_model['op']='INTERSECT'
-               var customModel={"crowdName":"",
+               customModel={"crowdName":"",
                  "list":[full_link_model,shop_model]
                }
-              this.postDataBank(customModel,shop_id,(key,data)=>{
-                if(data.errCode==0){
-                  that.singleShopItemCount[key]=data.data
-                }else{
-                  that.singleShopItemCount[key]=data.errMsg
-                }
-              })
+               // 477012012009
+              this.postDataBank(customModel,[shop_id],this.signleItemCallback)
             }
+            this.process_percent=20
+            sleep(1500)
             console.log(this.dynamicTags)
             for(var i=0;i<this.dynamicTags.length;i++){
               if(i==this.dynamicTags.length-1){continue}
-              var full_link_model=this.getFullLinkModel()
-              var shop_id=this.dynamicTags[i];
-              var link_id=this.dynamicTags[i+1];
-              var that=this;
-              var shop_model=this.getShopItemModel([shop_id,link_id])
-               shop_model['op']='INTERSECT'
-               var customModel={"crowdName":"",
-                 "list":[full_link_model,shop_model]
-               }
-              this.postDataBank(customModel,[shop_id,link_id],(key,data)=>{
-                if(data.errCode==0){
-                  that.linkShopItemCount[key[0]+'_'+key[1]]=data.data
-                  that.linkShopItemCount[key[1]+'_'+key[0]]=data.data
-                }else{
-                  that.linkShopItemCount[key[0]+'_'+key[1]]=data.errMsg
-                  that.linkShopItemCount[key[1]+'_'+key[0]]=data.errMsg
-                }
-              })
+              for(let j=i+1;j<this.dynamicTags.length;j++){
+                var shop_id=this.dynamicTags[i];
+                var link_id=this.dynamicTags[j];
+                var that=this;
+                var shop_model=this.getShopItemModel([shop_id])
+                var link_shop_model=this.getShopItemModel([link_id])
+                 shop_model['op']='INTERSECT'
+                 link_shop_model['op']='INTERSECT'
+                 customModel={"crowdName":"",
+                   "list":[full_link_model,shop_model,link_shop_model]
+                 }
+                this.postDataBank(customModel,[shop_id,link_id],this.linkItemCallback)
+              }
             }
-          },
-          getData(){
-            console.log(this.singleShopItemCount,this.linkShopItemCount);
-            console.log(this);
           },
           Download(){
             console.log(this.singleShopItemCount,this.linkShopItemCount);
-            console.log(this);
             console.log(this.dynamicTags)
              const defaultCellStyle =  { font: { name: "Verdana", sz: 11, color: "FF00FF88"}, fill: {fgColor: {rgb: "FFFFAA00"}}};
              const wopts = { bookType:'xlsx', bookSST:false, type:'binary', defaultCellStyle: defaultCellStyle, showGridLines: false};
-             const wb = { SheetNames: ['Sheet1'], Sheets: {}, Props: {} }; 
-             var sheet1=[{"test":"a","test1":"b"},{"test":"c","test1":"d"}]
-             // for(var i;i<this.dynamicTags.length;i++){
-             //  let shop_id=this.dynamicTags[i]
-             //  console.log(shop_id)
-             //    sheet1.push({"产品ID":shop_id,"数量":this.singleShopItemCount[shop_id]})
-             // }
+             const wb = { SheetNames: ['Sheet1','连带分析','连带分析矩阵'], Sheets: {}, Props: {} }; 
+             let sheet1=[]
+             for(let i=0;i<this.dynamicTags.length;i++){
+              let shop_id=this.dynamicTags[i]
+              console.log(shop_id)
+                sheet1.push({"产品ID":shop_id,"数量":this.singleShopItemCount[shop_id]})
+             }
              console.log(sheet1)
             wb.Sheets['Sheet1'] = XLSX.utils.json_to_sheet(sheet1)
-            // let sheet2=[]
-            //  for(var i;i<this.dynamicTags.length;i++){
-            //    for(var j;j<this.dynamicTags.length;i++){
-            //     let first_id=this.dynamicTags[i]
-            //     let second_id=this.dynamicTags[j]
-            //     sheet2.push({"产品ID":first_id,"产品ID":second_id,"数量":this.linkShopItemCount[first_id+"_"+second_id]})
-            //    }
-            //  }
-            // wb.Sheets['连带分析'] = XLSX.utils.json_to_sheet(sheet2)
+            let sheet2=[]
+             for(let i=0;i<this.dynamicTags.length;i++){
+               for(let j=0;j<this.dynamicTags.length;j++){
+                let first_id=this.dynamicTags[i]
+                let second_id=this.dynamicTags[j]
+                if(i==j){continue}
+                sheet2.push({"产品ID":first_id,"连带产品ID":second_id,"数量":this.linkShopItemCount[first_id+"_"+second_id]})
+               }
+             }
+            console.log(sheet2)
+            wb.Sheets['连带分析'] = XLSX.utils.json_to_sheet(sheet2)
 
-            // let sheet3=[]
-            //  for(var i;i<this.dynamicTags.length;i++){
-            //   var titles=this.dynamicTags
-            //   var item={};
-            //   titles.unshift('商品ID')
-            //    for(let title in titles){
-            //     let first_id=this.dynamicTags[i]
-            //     if(title=="商品ID"){item[title]=this.dynamicTags[i]
-            //     }else{
-            //       item[title]=this.linkShopItemCount[this.dynamicTags[i]+"_"+title]
-            //       }
-            //    }
-            //    sheet3.push(item);
-            //  }
-            // wb.Sheets['连带分析矩阵'] = XLSX.utils.json_to_sheet(sheet3)
+            let sheet3=[]
+            let titles=[].concat(this.dynamicTags);
+            titles.unshift('商品ID')
+             for(let i=0;i<this.dynamicTags.length;i++){
+              let item={};
+               for(let j=0;j<titles.length;j++){
+                let title=titles[j]
+                let first_id=this.dynamicTags[i]
+                if(title=="商品ID"){item[title]=this.dynamicTags[i]
+                }else{
+                  item[title]=this.linkShopItemCount[this.dynamicTags[i]+"_"+title]
+                  }
+               }
+               sheet3.push(item);
+             }
+             console.log(sheet3)
+            wb.Sheets['连带分析矩阵'] = XLSX.utils.json_to_sheet(sheet3)
             //创建二进制对象写入转换好的字节流
            let tmpDown =  new Blob([this.s2ab(XLSX.write(wb, wopts))], { type: "application/octet-stream" })
-           FileSaver.saveAs(tmpDown, "连带分析.xls");
+           FileSaver.saveAs(tmpDown, "link_sales.xlsx");
          },
          //字符串转字符流
          s2ab (s) {
@@ -394,6 +478,12 @@ function getCookies(domain, name, callback) {
           callback(cookie.value);
       }
   });
+}
+function sleep(miliseconds) {
+   var currentTime = new Date().getTime();
+
+   while (currentTime + miliseconds >= new Date().getTime()) {
+   }
 }
 </script>
 

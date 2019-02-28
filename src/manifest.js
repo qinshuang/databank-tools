@@ -8,9 +8,9 @@ module.exports = {
   icons: { '16': 'icons/16.png', '128': 'icons/128.png' },
   permissions: [
     // '<all_urls>',
-    'https://databank.yushanfang.com/',
-    // 'activeTab',
-    'tabs',
+    'https://databank.tmall.com/',
+    'activeTab',
+    // 'tabs',
     'cookies',
     // 'background',
     // 'contextMenus',
@@ -24,12 +24,12 @@ module.exports = {
     default_title: 'title',
     default_popup: 'pages/popup.html'
   },
-  background: {
-    persistent: false,
-    page: 'pages/background.html'
-  },
-  devtools_page: 'pages/devtools.html',
-  options_page: 'pages/options.html',
+  // background: {
+  //   persistent: false,
+  //   page: 'pages/background.html'
+  // },
+  // devtools_page: 'pages/devtools.html',
+  // options_page: 'pages/options.html',
   content_scripts: [{
     js: [ 'js/inject.js' ],
     run_at: 'document_end',
