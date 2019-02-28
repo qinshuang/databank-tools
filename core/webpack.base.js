@@ -10,7 +10,7 @@ module.exports = {
     tab: resolve('./tab'),
     popup: resolve('./popup'),
     options: resolve('./options'),
-    content: resolve('./content'), 
+    content: resolve('./content'),
     // devtools: resolve('./devtools'),
     // background: resolve('./backend'),
     // panel: resolve('./devtools/panel'),
@@ -90,7 +90,7 @@ module.exports = {
     ]
   },
   plugins: [
-    htmlPage('home', 'app', ['manifest', 'vendor','tab']),
+    htmlPage('DataBank Tools', 'app', ['manifest', 'vendor','tab']),
     htmlPage('popup', 'popup', ['manifest', 'vendor','popup']),
     // htmlPage('panel', 'panel', ['manifest', 'vendor','panel']),
     // htmlPage('devtools', 'devtools', ['manifest', 'vendor','devtools']),
