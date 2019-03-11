@@ -1,11 +1,11 @@
 
 module.exports = {
   name: 'Databank Tools',
-  version: '1.0.1',
+  version: '1.0.2',
   description: 'Databank Tools',
   author: 'Shuang.qin',
   manifest_version: 2,
-  icons: { '16': 'icons/16.png','48': 'icons/48.png','128': 'icons/128.png'},
+  icons: { '16': 'icons/acxiom_logo.ico','48': 'icons/acxiom_logo.ico','128': 'icons/acxiom_logo.ico'},
   permissions: [
     // '<all_urls>',
     'https://databank.tmall.com/',

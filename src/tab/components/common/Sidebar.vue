@@ -47,7 +47,18 @@
                         icon: 'el-icon-tickets',
                         index: 'link-sales',
                         title: '连带分析'
-                    }
+                    },
+                  {
+                    icon: 'el-icon-tickets',
+                    title: '连带分析',
+                    subs:[
+                      {
+                        icon: 'el-icon-tickets',
+                        index: 'link-sales',
+                        title: '连带分析'
+                      },
+                    ]
+                  },
                 ]
             }
         },
