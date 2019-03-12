@@ -60,6 +60,13 @@ export default {
       console.error(e)
     }
   },
+  dataBankGet(url){
+    try {
+       return axios.get(url)
+    } catch (e) {
+      console.error(e)
+    }
+  },
   passApiCount (customModel, name, responseCallback) {
     const _this=this;
     this.dataBankPost('https://databank.tmall.com/api/paasapi', {
@@ -87,4 +94,65 @@ export default {
       })
     })
   },
+  passApiCreateCustom (customModel, name, responseCallback) {
+    const _this=this;
+    this.dataBankPost('https://databank.tmall.com/api/paasapi', {
+      'path': '/api/v1/custom/databank',
+      'contentType': 'application/json',
+      'customModelStr': JSON.stringify(customModel)
+    }, (data) => {
+      return new Promise(function (resolve, reject) {
+        if (data.errCode !== 0 && data.errCode !== 477012012009) {
+          if (data.errCode === 477012002005) {
+            setTimeout(function () {
+              _this.passApiCount(customModel, name, responseCallback)
+            }, 2000)
+          } else {
+            console.error(data)
+            // this.$notify.error({
+            //   title: '错误',
+            //   message: data.errMsg,
+            // })
+          }
+        } else {
+          responseCallback(name, data)
+        }
+        resolve()
+      })
+    })
+  },
+  fullLinkCategoryGet(){
+    return this.dataBankGet("https://databank.tmall.com/api/paasapi?path=/api/dimension/listDimensionForbiden&type=CATEGORY&id=7")
+  },
+  fullLinklistChildDimension(){
+    return this.dataBankGet('https://databank.tmall.com/api/paasapi?path=/api/dimension/listChildDimension&type=STATUS&id=7')
+  },
+  baseDataSelect:[{
+    text: '近30天',
+    onClick (picker) {
+      const end = new Date()
+      const start = new Date()
+      end.setTime(end.getTime() - 3600 * 1000 * 24)
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+      picker.$emit('pick', [start, end])
+    }
+  }, {
+  text: '近90天',
+    onClick (picker) {
+    const end = new Date()
+    const start = new Date()
+    end.setTime(end.getTime() - 3600 * 1000 * 24)
+    start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+    picker.$emit('pick', [start, end])
+  }
+}, {
+  text: '近180天',
+    onClick (picker) {
+    const end = new Date()
+    const start = new Date()
+    end.setTime(end.getTime() - 3600 * 1000 * 24)
+    start.setTime(start.getTime() - 3600 * 1000 * 24 * 180)
+    picker.$emit('pick', [start, end])
+  }
+}]
 }

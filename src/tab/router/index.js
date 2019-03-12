@@ -24,6 +24,11 @@ export default new Router({
                     component: resolve => require(['../components/page/LinkSales.vue'], resolve),
                     meta: { title: 'Link Sales' }
                 },
+                {
+                    path: '/lrl-fast',
+                    component: resolve => require(['../components/page/LRLFast.vue'], resolve),
+                    meta: { title: 'LRL Fast' }
+                },
             ]
         },
         {

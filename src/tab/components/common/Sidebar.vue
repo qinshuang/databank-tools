@@ -6,7 +6,8 @@
                 <template v-if="item.subs">
                     <el-submenu :index="item.index" :key="item.index">
                         <template slot="title">
-                            <i :class="item.icon"></i><span slot="title">{{ item.title }}</span>
+                            <font-awesome-icon :icon="item.icon" />
+                            <span slot="title">{{ item.title }}</span>
                         </template>
                         <template v-for="subItem in item.subs">
                             <el-submenu v-if="subItem.subs" :index="subItem.index" :key="subItem.index">
@@ -23,7 +24,8 @@
                 </template>
                 <template v-else>
                     <el-menu-item :index="item.index" :key="item.index">
-                        <i :class="item.icon"></i><span slot="title">{{ item.title }}</span>
+                        <font-awesome-icon :icon="item.icon" />
+                        <span slot="title">{{ item.title }}</span>
                     </el-menu-item>
                 </template>
             </template>
@@ -44,18 +46,18 @@
                     //     title: '系统首页'
                     // },
                     {
-                        icon: 'el-icon-tickets',
+                        icon: 'link',
                         index: 'link-sales',
                         title: '连带分析'
                     },
                   {
-                    icon: 'el-icon-tickets',
-                    title: '连带分析',
+                    icon: 'clipboard-list',
+                    title: 'For Nancy',
+                    index:'',
                     subs:[
                       {
-                        icon: 'el-icon-tickets',
-                        index: 'link-sales',
-                        title: '连带分析'
+                        index: 'lrl-fast',
+                        title: 'LRL FAST Report'
                       },
                     ]
                   },
