@@ -47,8 +47,14 @@
                     // },
                     {
                         icon: 'link',
-                        index: 'link-sales',
-                        title: '连带分析'
+                        index: '',
+                        title: 'Data Audit',
+                          subs:[
+                            {
+                              index: 'link-sales',
+                              title: '连带分析'
+                            },
+                          ]
                     },
                   {
                     icon: 'clipboard-list',

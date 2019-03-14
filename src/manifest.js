@@ -1,7 +1,7 @@
 
 module.exports = {
   name: 'Databank Tools',
-  version: '1.0.2',
+  version: '1.0.3',
   description: 'Databank Tools',
   author: 'Shuang.qin',
   manifest_version: 2,
