@@ -79,7 +79,7 @@ export default {
         if (data.errCode === 477012002005) {
           setTimeout(function () {
             _this.passApiCount(customModel, name, responseCallback)
-          }, 2000)
+          }, 10000)
         } else if (data.errCode == 0 || data.errCode == 477012012009 || data.errCode == 477012002000) {
           responseCallback(name, data)
         } else {

@@ -47,19 +47,23 @@
                     // },
                     {
                         icon: 'link',
-                        index: '',
+                        index: 'data-audit',
                         title: 'Data Audit',
                           subs:[
                             {
                               index: 'link-sales',
-                              title: '连带分析'
+                              title: 'Link Sales'
+                            },
+                            {
+                              index: 'contact-analysis',
+                              title: '触点分析'
                             },
                           ]
                     },
                   {
                     icon: 'clipboard-list',
                     title: 'For Nancy',
-                    index:'',
+                    index:'lrl',
                     subs:[
                       {
                         index: 'lrl-fast',

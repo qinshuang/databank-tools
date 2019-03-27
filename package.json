@@ -17,6 +17,7 @@
     "mavon-editor": "^2.6.17",
     "vue": "^2.5.21",
     "vue-cropperjs": "^3.0.0",
+    "vue-input-tag": "^2.0.5",
     "vue-meta": "^1.2.0",
     "vue-pouch": "^0.0.22",
     "vue-quill-editor": "^3.0.6",
