@@ -58,6 +58,14 @@
                               index: 'contact-analysis',
                               title: '触点分析'
                             },
+                            {
+                              index:'full-link-distribution',
+                              title:'AIPL趋势'
+                            },
+                            {
+                              index:'get-data-on-widget-v2',
+                              title:'相关性分析'
+                            }
                           ]
                     },
                   {

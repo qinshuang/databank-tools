@@ -34,6 +34,16 @@ export default new Router({
                     component: resolve => require(['../components/page/LRLFast.vue'], resolve),
                     meta: { title: 'LRL Fast' }
                 },
+                {
+                    path: '/full-link-distribution',
+                    component: resolve => require(['../components/page/FullLinkDistribution.vue'], resolve),
+                    meta: { title: 'AIPL趋势' }
+                },
+                {
+                    path: '/get-data-on-widget-v2',
+                    component: resolve => require(['../components/page/GetDataOnWidgetV2.vue'], resolve),
+                    meta: { title: '相关性分析' }
+                }
             ]
         },
         {

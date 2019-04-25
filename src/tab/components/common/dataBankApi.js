@@ -1,11 +1,13 @@
 import XLSX from 'xlsx'
 import axios from 'axios'
 import Vue from 'vue'
+import $ from 'jquery';
 
 const FileSaver = require('file-saver')
 
 export default {
   csrf_token: '',
+  api_count:0,
   saveExcelFromJson (jsonData, excelName) {
     const defaultCellStyle = {font: {name: 'Verdana', sz: 11, color: 'FF00FF88'}, fill: {fgColor: {rgb: 'FFFFAA00'}}}
     const wopts = {
@@ -68,7 +70,20 @@ export default {
       console.error(e)
     }
   },
+  async dataBankAsyncGet (url,data) {
+    try {
+      let res = await axios.get(url, {params: data})
+      return new Promise((resolve) => {
+        resolve(res)
+      })
+    } catch (err) {
+      alert('服务器出错')
+      console.log(err)
+    }
+  },
+
   passApiCount (customModel, name, responseCallback) {
+    this.api_count++;
     const _this = this
     this.dataBankPost('https://databank.tmall.com/api/paasapi', {
       'path': '/api/v1/custom/realtime/count',
@@ -77,9 +92,10 @@ export default {
     }, (data) => {
       return new Promise(function (resolve, reject) {
         if (data.errCode === 477012002005) {
+          console.log("等待重新请求")
           setTimeout(function () {
             _this.passApiCount(customModel, name, responseCallback)
-          }, 10000)
+          }, 50000)
         } else if (data.errCode == 0 || data.errCode == 477012012009 || data.errCode == 477012002000) {
           responseCallback(name, data)
         } else {
@@ -160,5 +176,58 @@ export default {
         start.setTime(start.getTime() - 3600 * 1000 * 24 * 180)
         picker.$emit('pick', [start, end])
       }
-    }]
+    }],
+  dataBankPostByJquery(url, data,async,successCallBack,errorCallBack){
+    if (this.csrf_token == '') {
+      alert("获取token失败,请重试")
+      return
+    }
+    $.ajax({
+      url:url,//url路径
+      type:'POST', //GET
+      async:async, //或false,是否异步
+      data:JSON.stringify(data),
+      timeout:5000, //超时时间
+      dataType:'json', //返回的数据格式：
+      contentType: "application/json",
+      headers: {
+        'content-type': 'application/json',
+        'x-csrf-token': this.csrf_token
+      },
+      success:function(data,textStatus,jqXHR){
+        successCallBack(data,textStatus,jqXHR)
+      },
+      error:function(xhr,textStatus){
+        errorCallBack(xhr,textStatus)
+        console.log('小程序cookie获取失败---->'+textStatus);
+      },
+      complete:function(){
+      }
+    })
+  },
+  passApiCountByJquery (customModel, name, responseCallback) {
+    if (this.csrf_token == '') {
+      alert("获取token失败,请重试")
+      return
+    }
+    this.api_count++;
+    const _this = this;
+    this.dataBankPostByJquery('https://databank.tmall.com/api/paasapi', {
+      'path': '/api/v1/custom/realtime/count',
+      'contentType': 'application/json',
+      'customModelStr': JSON.stringify(customModel)
+    },false, (data,textStatus,jqXHR) => {
+      if (data.errCode === 477012002005) {
+        setTimeout(function () {
+          _this.passApiCountByJquery (customModel, name, responseCallback)
+        }, 3000)
+      }else{
+        responseCallback(name,data)
+      }
+      // console.log(data,textStatus,jqXHR)
+    },(xhr,textStatus)=>{
+      alert(textStatus)
+      console.log(xhr,textStatus)
+    })
+  },
 }

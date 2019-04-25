@@ -13,6 +13,7 @@
             <h4>3. 填写商品ID</h4>
             <h4>4. 开始查询</h4>
             <h4>5. 进度100% 后点击下载.</h4>
+            <h4>{{ $dataBankApi.api_count }}</h4>
         </el-card>
         <div class="container">
             <div class="form-box">
@@ -264,7 +265,7 @@
         }
       },
       Download () {
-        console.log(this)
+        // console.log(this)
         const Sheets = {}
 
         let sheet0 = []
@@ -345,9 +346,9 @@
       },
       getSignleMerchandisCallback (category_index, data) {
         let _this = this
+        const item = this.category[category_index]
         if (data.errCode == 477012012009) {
           // 数量不足 反向圈数
-          const item = this.category[category_index]
           let shop_model = this.getShopItemModel(item.value)
           let full_link_model = this.getFullLinkModel()
           shop_model['op'] = 'DIFF'
@@ -379,9 +380,9 @@
       },
       getLinkMerchandisCallback (key, data) {
         let full_link_model = this.getFullLinkModel()
+        const item1 = this.category[key[0]]
+        const item2 = this.category[key[1]]
         if (data.errCode == 477012012009) {
-          const item1 = this.category[key[0]]
-          const item2 = this.category[key[1]]
           var shop_model = this.getShopItemModel(item1.value)
           var link_shop_model = this.getShopItemModel(item2.value)
           shop_model['op'] = 'INTERSECT'
@@ -423,24 +424,26 @@
           var shop_model = this.getShopItemModel(item1.value)
           var link_shop_model = this.getShopItemModel(item2.value)
           shop_model['op'] = 'UNION'
+          link_shop_model['op']='DIFF'
           var customModel = {
             'crowdName': '',
-            'list': [full_link_model, shop_model]
+            'list': [full_link_model,link_shop_model, shop_model]
           }
           this.$dataBankApi.passApiCount(customModel, k, (k2, d2) => {
-            console.log("数据不足 并 数据", k2,d2)
+            // console.log("数据不足 并 数据", k2,d2)
             if (d2.errCode == 0) {
               var shop_model1 = _this.getShopItemModel(_this.category[k2[0]].value)
               var link_shop_model1 = _this.getShopItemModel(_this.category[k2[1]].value)
               shop_model1['op'] = 'UNION'
               link_shop_model1['op'] = 'DIFF'
-              var customModel1 = {
+              let link_shop_model2=link_shop_model1
+              let customModel1 = {
                 'crowdName': '',
-                'list': [full_link_model, shop_model1, link_shop_model1]
+                'list': [full_link_model,link_shop_model2, shop_model1, link_shop_model1]
               }
-              console.log(k2, d2, customModel1)
+              // console.log(k2, d2, customModel1)
               _this.$dataBankApi.passApiCount(customModel1, [k2, d2.data], (k3, d3) => {
-                console.log("数据不足 并 差", k3,d3)
+                // console.log("数据不足 并 差", k3,d3)
                 const item11 = _this.category[k3[0][0]]
                 const item21 = _this.category[k3[0][1]]
                 if (d3.errCode == 0) {
